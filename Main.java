@@ -8,12 +8,14 @@ import java.util.Scanner;
  *
  * FASE 1: Estructuras lineales (ArrayList, Queue, Stack, Array)
  * FASE 2: Árbol Binario de Búsqueda (BST) como catálogo principal
+ * FASE 3: Grafo bipartito dirigido y ponderado (usuario-libro)
  */
 public class Main {
 
     private static final Scanner scanner     = new Scanner(System.in);
     private static final GestionBiblioteca gestion      = new GestionBiblioteca();
     private static final GestionArbol      gestionArbol = new GestionArbol();
+    private static final GestionGrafo      gestionGrafo = new GestionGrafo();
 
     public static void main(String[] args) {
         System.out.println("\n  Sistema iniciado. Datos demo cargados en ambas fases.\n");
@@ -30,11 +32,12 @@ public class Main {
                 case 5: menuHistorial();   break;
                 case 6: menuColaEspera();  break;
                 case 7: menuFase2();       break;
-                case 8: break;
+                case 8: menuFase3();       break;
+                case 9: break;
                 default:
                     System.out.println("  Opcion invalida.");
             }
-        } while (opcion != 8);
+        } while (opcion != 9);
 
         scanner.close();
         System.out.println("\n  Hasta luego. Sesion cerrada.\n");
@@ -57,7 +60,8 @@ public class Main {
         System.out.println("  6. Ver Lista de Espera de un Libro (Cola FIFO)");
         System.out.println("  --------------------------------------------------------");
         System.out.println("  7. >> Ir a FASE 2: Arbol Binario de Busqueda (BST) <<");
-        System.out.println("  8. Salir");
+        System.out.println("  8. >> Ir a FASE 3: Grafos (Usuario-Libro) <<");
+        System.out.println("  9. Salir");
         System.out.println("------------------------------------------------------------");
     }
 
@@ -332,6 +336,144 @@ public class Main {
         }
         System.out.println("  Usuarios:");
         for (Usuario u : gestion.getRegistroUsuarios()) {
+            System.out.println("    " + u);
+        }
+        System.out.println();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  FASE 3 — MENÚ GRAFO
+    // ═══════════════════════════════════════════════════════════════════════
+
+    private static void menuFase3() {
+        int opcion;
+        do {
+            mostrarMenuGrafo();
+            opcion = leerEntero("Seleccione una opcion: ");
+            switch (opcion) {
+                case 1: grafo_registrar();        break;
+                case 2: grafo_prestamo();         break;
+                case 3: grafo_devolucion();       break;
+                case 4: grafo_vecinos();          break;
+                case 5: grafo_recomendaciones();  break;
+                case 6: grafo_visualizar();       break;
+                case 7: grafo_metricas();         break;
+                case 8: grafo_escenarioPrueba();  break;
+                case 9: break;
+                default: System.out.println("  Opcion invalida.");
+            }
+        } while (opcion != 9);
+
+        System.out.println("\n  Volviendo al menu principal...");
+    }
+
+    private static void mostrarMenuGrafo() {
+        System.out.println("\n###########################################################");
+        System.out.println("         SISTEMA DE BIBLIOTECA - FASE 3: GRAFOS");
+        System.out.println("###########################################################");
+        System.out.println("  --- Gestion con Grafo Bipartito Dirigido Ponderado ---");
+        System.out.println("  1. Registrar Libro / Usuario  [+ nodo en grafo]");
+        System.out.println("  2. Realizar Prestamo          [arista PRESTAMO o ESPERA]");
+        System.out.println("  3. Devolver Libro             [HISTORIAL + Cola/Pila]");
+        System.out.println("  4. Ver Vecinos de Usuario o Libro");
+        System.out.println("  5. Recomendaciones (BFS) para un Usuario");
+        System.out.println("  6. Visualizar Grafo (Lista de Adyacencia)");
+        System.out.println("  7. Ver Metricas de Eficiencia  [Grafo vs Lista]");
+        System.out.println("  8. Ejecutar Escenario de Prueba Guiado");
+        System.out.println("  9. Volver al menu principal");
+        System.out.println("###########################################################");
+    }
+
+    private static void grafo_registrar() {
+        System.out.println("\n  Que desea registrar?");
+        System.out.println("    1. Libro");
+        System.out.println("    2. Usuario");
+        int sub = leerEntero("  Opcion: ");
+
+        if (sub == 1) {
+            System.out.println("\n  Categorias disponibles:");
+            String[] cats = gestionGrafo.getCategorias();
+            for (int i = 0; i < cats.length; i++) {
+                System.out.println("    " + (i + 1) + ". " + cats[i]);
+            }
+            System.out.print("  Titulo    : ");
+            String titulo = scanner.nextLine().trim();
+            System.out.print("  Autor     : ");
+            String autor = scanner.nextLine().trim();
+            System.out.print("  Categoria : ");
+            String categoria = scanner.nextLine().trim();
+
+            boolean ok = gestionGrafo.registrarLibro(titulo, autor, categoria);
+            if (ok) {
+                System.out.println("  EXITO: Libro y nodo L:id agregados al grafo.");
+            } else {
+                System.out.println("  ERROR: Categoria no valida.");
+            }
+        } else if (sub == 2) {
+            System.out.print("  Nombre del usuario: ");
+            String nombre = scanner.nextLine().trim();
+            gestionGrafo.registrarUsuario(nombre);
+            System.out.println("  EXITO: Usuario y nodo U:id agregados al grafo.");
+        } else {
+            System.out.println("  Subopcion invalida.");
+        }
+    }
+
+    private static void grafo_prestamo() {
+        System.out.println("\n  --- PRESTAMO [Grafo + Cola FIFO] ---");
+        mostrarResumenGrafo();
+        int idLibro   = leerEntero("  ID del libro   : ");
+        int idUsuario = leerEntero("  ID del usuario : ");
+        System.out.println("\n  " + gestionGrafo.realizarPrestamo(idLibro, idUsuario));
+    }
+
+    private static void grafo_devolucion() {
+        System.out.println("\n  --- DEVOLUCION [Grafo + Pila LIFO] ---");
+        mostrarResumenGrafo();
+        int idLibro   = leerEntero("  ID del libro   : ");
+        int idUsuario = leerEntero("  ID del usuario : ");
+        System.out.println("\n  " + gestionGrafo.devolverLibro(idLibro, idUsuario));
+    }
+
+    private static void grafo_vecinos() {
+        System.out.println("\n  Ver vecinos de:");
+        System.out.println("    1. Usuario");
+        System.out.println("    2. Libro");
+        int sub = leerEntero("  Opcion: ");
+        int id = leerEntero("  ID: ");
+        boolean esUsuario = (sub == 1);
+        System.out.println("\n" + gestionGrafo.mostrarVecinos(id, esUsuario));
+    }
+
+    private static void grafo_recomendaciones() {
+        System.out.println("\n  --- RECOMENDACIONES BFS ---");
+        int idUsuario = leerEntero("  ID del usuario: ");
+        int max = leerEntero("  Cantidad maxima (ej. 5): ");
+        if (max <= 0) max = 5;
+        System.out.println("\n" + gestionGrafo.mostrarRecomendaciones(idUsuario, max));
+    }
+
+    private static void grafo_visualizar() {
+        System.out.println("\n  --- VISUALIZACION DEL GRAFO ---\n");
+        System.out.println(gestionGrafo.visualizarGrafo());
+    }
+
+    private static void grafo_metricas() {
+        System.out.println("\n  --- METRICAS DE EFICIENCIA (FASE 3) ---\n");
+        System.out.println(gestionGrafo.mostrarMetricas());
+    }
+
+    private static void grafo_escenarioPrueba() {
+        System.out.println("\n" + gestionGrafo.ejecutarEscenarioPrueba());
+    }
+
+    private static void mostrarResumenGrafo() {
+        System.out.println("  Libros:");
+        for (Libro l : gestionGrafo.getCatalogoLibros()) {
+            System.out.println("    " + l);
+        }
+        System.out.println("  Usuarios:");
+        for (Usuario u : gestionGrafo.getRegistroUsuarios()) {
             System.out.println("    " + u);
         }
         System.out.println();

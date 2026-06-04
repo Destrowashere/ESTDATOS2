@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca — Visualizador de Grafo (Fase 3)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header__brand">
+        <span class="header__badge">Fase 3</span>
+        <h1>Sistema Bibliotecario — Grafo Bipartito</h1>
+        <p class="header__sub">Implementación visual · Usuarios ↔ Libros (dirigido, ponderado)</p>
+      </div>
+      <div class="header__stats" id="statsBar">
+        <div class="stat"><span class="stat__val" id="statNodos">0</span><span class="stat__lbl">Nodos</span></div>
+        <div class="stat"><span class="stat__val" id="statAristas">0</span><span class="stat__lbl">Aristas</span></div>
+        <div class="stat"><span class="stat__val" id="statUsuarios">0</span><span class="stat__lbl">Usuarios</span></div>
+        <div class="stat"><span class="stat__val" id="statLibros">0</span><span class="stat__lbl">Libros</span></div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel panel--left">
+        <section class="card">
+          <h2>Operaciones del grafo</h2>
+          <p class="card__hint">Misma lógica que <code>GrafoBiblioteca.java</code></p>
+          <ul class="ops-list">
+            <li><strong>Inserción</strong> — nodos U:id / L:id al registrar</li>
+            <li><strong>Búsqueda</strong> — clic en nodo o arista</li>
+            <li><strong>Eliminación</strong> — quitar arista (botón abajo)</li>
+            <li><strong>BFS</strong> — recomendaciones colaborativas</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>Leyenda de aristas</h2>
+          <div class="legend">
+            <span class="legend__item legend__item--prestamo">PRESTAMO_ACTIVO</span>
+            <span class="legend__item legend__item--espera">ESPERA</span>
+            <span class="legend__item legend__item--historial">HISTORIAL</span>
+          </div>
+          <div class="legend legend--nodes">
+            <span class="legend__dot legend__dot--user"></span> Usuario
+            <span class="legend__dot legend__dot--book"></span> Libro
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Recomendaciones BFS</h2>
+          <label for="selectUsuario">Usuario</label>
+          <select id="selectUsuario" class="input"></select>
+          <button type="button" class="btn btn--primary" id="btnRecomendar">Calcular recomendaciones</button>
+          <ul id="listaRecomendaciones" class="rec-list"></ul>
+        </section>
+      </aside>
+
+      <section class="graph-wrap">
+        <div id="grafoNetwork" class="graph-canvas"></div>
+        <div class="graph-toolbar">
+          <button type="button" class="btn btn--ghost" id="btnReset">Restaurar demo</button>
+          <button type="button" class="btn btn--ghost" id="btnFit">Centrar vista</button>
+        </div>
+      </section>
+
+      <aside class="panel panel--right">
+        <section class="card card--detail">
+          <h2>Detalle seleccionado</h2>
+          <div id="detalleNodo" class="detail-box">
+            <p class="detail-placeholder">Haz clic en un nodo o arista del grafo.</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Lista de adyacencia</h2>
+          <pre id="adyacenciaText" class="code-block"></pre>
+        </section>
+
+        <section class="card">
+          <h2>Enlace con Java</h2>
+          <p class="card__hint">Prototipo de consola: <code>java biblioteca.Main</code> → opción 8</p>
+          <p class="card__hint">Clases: <code>GrafoBiblioteca</code>, <code>GestionGrafo</code></p>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      Estructuras de Datos II — Visualización HTML/CSS/JS (complemento al informe APA · Implementación)
+    </footer>
+  </div>
+
+  <script src="grafo-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
